@@ -1,0 +1,22 @@
+{
+  "collectionName": "components_logos_logo_medias",
+  "info": {
+    "name": "LogoMedia",
+    "icon": "image"
+  },
+  "options": {},
+  "attributes": {
+    "logo": {
+      "model": "file",
+      "via": "related",
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos"
+      ],
+      "plugin": "upload",
+      "required": false,
+      "pluginOptions": {}
+    }
+  }
+}

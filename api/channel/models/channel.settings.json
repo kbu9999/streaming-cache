@@ -1,0 +1,47 @@
+{
+  "kind": "collectionType",
+  "collectionName": "channels",
+  "info": {
+    "name": "Channel",
+    "description": ""
+  },
+  "options": {
+    "increments": true,
+    "timestamps": true,
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "category": {
+      "type": "enumeration",
+      "enum": [
+        "Movies",
+        "News",
+        "Sports",
+        "Kids",
+        "Family",
+        "Shows",
+        "Education",
+        "Music",
+        "Others"
+      ],
+      "default": "Others"
+    },
+    "name": {
+      "type": "string",
+      "required": true,
+      "unique": true
+    },
+    "logos": {
+      "type": "dynamiczone",
+      "components": [
+        "logos.logo",
+        "logos.logo-media"
+      ]
+    },
+    "links": {
+      "via": "channel",
+      "collection": "links"
+    }
+  }
+}

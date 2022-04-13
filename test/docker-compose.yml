@@ -1,0 +1,10 @@
+version: '3'
+services:
+  strapi:
+    image: iptv_hls
+    #build: strapi-ffmpeg
+    volumes:
+      - ..:/srv/app
+    #  - /tmp:/tmp
+    ports:
+      - '1337:1337'

@@ -1,0 +1,40 @@
+{
+  "kind": "collectionType",
+  "collectionName": "fuentes",
+  "info": {
+    "name": "Sources",
+    "description": ""
+  },
+  "options": {
+    "increments": true,
+    "timestamps": true,
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "name": {
+      "type": "string",
+      "required": true,
+      "unique": true
+    },
+    "url": {
+      "type": "string",
+      "required": true
+    },
+    "allowed_url": {
+      "type": "string"
+    },
+    "limit": {
+      "type": "integer",
+      "default": 1,
+      "min": 1
+    },
+    "links": {
+      "via": "source",
+      "collection": "links"
+    },
+    "group_blacklist": {
+      "type": "json"
+    }
+  }
+}

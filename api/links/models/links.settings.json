@@ -1,0 +1,36 @@
+{
+  "kind": "collectionType",
+  "collectionName": "links",
+  "info": {
+    "name": "Links",
+    "description": ""
+  },
+  "options": {
+    "increments": true,
+    "timestamps": true,
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "url": {
+      "type": "string",
+      "unique": true
+    },
+    "active": {
+      "type": "boolean",
+      "default": true
+    },
+    "isYT": {
+      "type": "boolean",
+      "default": false
+    },
+    "source": {
+      "via": "links",
+      "model": "fuente"
+    },
+    "channel": {
+      "via": "links",
+      "model": "channel"
+    }
+  }
+}

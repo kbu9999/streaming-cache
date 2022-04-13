@@ -1,0 +1,31 @@
+{
+  "kind": "singleType",
+  "collectionName": "configs",
+  "info": {
+    "name": "Config",
+    "description": ""
+  },
+  "options": {
+    "increments": true,
+    "timestamps": true,
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "base_url": {
+      "type": "string"
+    },
+    "influx_host": {
+      "type": "string"
+    },
+    "influx_org": {
+      "type": "string"
+    },
+    "influx_bucket": {
+      "type": "string"
+    },
+    "influx_token": {
+      "type": "password"
+    }
+  }
+}
