@@ -170,7 +170,7 @@ module.exports = {
     let channels = await strapi.services.channel.find({ _limit: -1 });
 
     channels.forEach((c, i) => {
-      var lg = "";
+      var lg = "#EXTM3U\n";
       if (c.logos.length > 0) {
         var logo = c.logos[0]
         if (logo.__component == "logos.logo-media") {

@@ -79,7 +79,13 @@ module.exports = {
   cleanChannels: async (ctx, next) => {
     const { id } = ctx.params;
 
-    return writeM3U8(id);
+    var links = await strapi.services.links.delete({ source: id });
+    links.forEach(async lnk => {
+      strapi.log.warn(`${lnk.url} deleted`);
+    })
+    //console.log(r);
+
+    return { status: "OK" }
   }
 };
 

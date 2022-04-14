@@ -4,7 +4,7 @@
  * Read the documentation (https://strapi.io/documentation/developer-docs/latest/development/backend-customization.html#core-services)
  * to customize this service
  */
-
+const os = require('os');
 const { InfluxDB, Point } = require('@influxdata/influxdb-client');
 
 const influx = {}
@@ -23,7 +23,8 @@ module.exports = {
       influx.db = new InfluxDB({ url: influx_host, token: influx_token });
     }
     else {
-      const api = influx.db.getWriteApi(global.influx_org, global.influx_bucket)
+      const api = influx.db.getWriteApi(global.influx_org, global.influx_bucket);
+      api.useDefaultTags({ host: os.hostname() })
       var point1 = new Point('iptv')
         .tag('channel', channel)
         .floatField('fps', progress.currentFps)
@@ -38,7 +39,8 @@ module.exports = {
     const global = await strapi.services.config.find();
 
     if (influx.db) {
-      const api = influx.db.getWriteApi(global.influx_org, global.influx_bucket)
+      const api = influx.db.getWriteApi(global.influx_org, global.influx_bucket);
+      api.useDefaultTags({ host: os.hostname() })
       var point1 = new Point('iptv_sources')
         .tag('id', source.id)
         .tag('name', source.name)
