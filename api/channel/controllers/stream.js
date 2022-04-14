@@ -45,10 +45,8 @@ setInterval(() => {
     }
   })
 
-
   strapi.services.fuente.find().then(s_sources => {
     s_sources.forEach(src => {
-      //console.log(sources[src.id]);
       strapi.services.channel.sourcesStats(src, sources[src.id]? sources[src.id] : 0)
     })
   })
@@ -127,11 +125,12 @@ function createStream(link, channel, src, file) {
         clearStream(channel, src, file, timerId)
       });
 
-    channels[channel] = {
+    channels[channel].command = cmd
+    /*channels[channel] = {
       command: cmd,
       //src: src.id,
       last: new Date()
-    };
+    };//*/
     cmd.run();//*/
   })
 }
@@ -188,6 +187,11 @@ module.exports = {
     var file = `/tmp/channel${id}.m3u8`;
 
     if (!(id in channels)) {
+      channels[channel] = {
+        command: null,
+        //src: src.id,
+        last: new Date()
+      };
       const data = await strapi.services.channel.findOne({ id });
 
       const links = await strapi.services.links.find({ channel: id, active: true });

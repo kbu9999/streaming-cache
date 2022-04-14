@@ -29,7 +29,6 @@ module.exports = {
           return;
         }
 
-
         var ch = await strapi.query('channel').findOne({ name: item.name });
         if (!ch) {
           strapi.log.info(`Creating Channel ${item.name}`)
@@ -37,7 +36,8 @@ module.exports = {
           count++;
         }
 
-        if (item.tvg.logo && (ch.logos.length > 0 && item.tvg.logo !== ch.logos[0].url)) {
+        //console.log(item.tvg.logo, ch.logos);
+        if (item.tvg.logo && (ch.logos.length == 0 || (ch.logos.length > 0 && item.tvg.logo !== ch.logos[0].url))) {
           strapi.log.info(`Update Logo Channel ${item.name}: ${item.tvg.logo}`)
           strapi.services.channel.update({ id: ch.id }, { logos: [{ __component: "logos.logo", url: item.tvg.logo }] })
         }
@@ -49,7 +49,8 @@ module.exports = {
         }
         else {
           links.forEach(link => {
-            if(item.url === item.url) return;
+            //console.log(item.url, link.url)
+            if(item.url === link.url) return;
 
             strapi.log.info(`Update Link Channel ${item.name}: ${item.url} from ${link.url}`)
             strapi.services.links.update({id: link.id } ,{ url: item.url, channel: ch.id, source: s.id });
