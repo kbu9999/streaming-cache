@@ -17,16 +17,18 @@ module.exports = {
       data.items.forEach(async item => {
         if(count > 0) return;
         //console.log(item);
-        if (!item.url.includes(s.allowed_url))
+        if (s.allowed_url && !item.url.includes(s.allowed_url))
           return;
 
         var nameAllowed = false;
         if (s.group_blacklist)
           s.group_blacklist.forEach(n => { nameAllowed |= item.group.title.includes(n) })
+        else nameAllowed = true;
 
         if (!nameAllowed) {
           return;
         }
+
 
         var ch = await strapi.query('channel').findOne({ name: item.name });
         if (!ch) {
@@ -43,7 +45,7 @@ module.exports = {
         //console.log(links);
         if(links.length == 0){
           strapi.log.info(`Creating Link Channel ${item.name}: ${item.url}`)
-          //strapi.services.links.create({ url: item.url, channel: ch.id, source: s.id });
+          strapi.services.links.create({ url: item.url, channel: ch.id, source: s.id });
         }
         else {
           links.forEach(link => {
