@@ -165,12 +165,12 @@ async function getSourceAviable(links) {
 
 module.exports = {
   getPlaylist: async (ctx, next) => {
-    var playlist = "";
+    var playlist = "#EXTM3U\n";
     let global = await strapi.services.config.find();
     let channels = await strapi.services.channel.find({ _limit: -1 });
 
     channels.forEach((c, i) => {
-      var lg = "#EXTM3U\n";
+      var lg = "";
       if (c.logos.length > 0) {
         var logo = c.logos[0]
         if (logo.__component == "logos.logo-media") {
