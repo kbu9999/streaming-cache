@@ -187,7 +187,7 @@ module.exports = {
     var file = `/tmp/channel${id}.m3u8`;
 
     if (!(id in channels)) {
-      channels[channel] = {
+      channels[id] = {
         command: null,
         //src: src.id,
         last: new Date()
