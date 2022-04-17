@@ -89,7 +89,7 @@ function createStream(link, channel, src, file) {
         '-reconnect_at_eof 1',
         '-reconnect_streamed 1',
         '-reconnect_delay_max 2',
-        `-user_agent`, `${ USER_AGENT }`
+        `-user-agent`, `${ USER_AGENT }`
       ])
       .audioCodec('copy')
       .videoCodec('copy')
