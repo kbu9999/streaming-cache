@@ -12,7 +12,7 @@ const ffmpeg = require('fluent-ffmpeg');
 const channels = {};
 const sources = {};
 
-const USER_AGENT = 'VLC/3.0.9 LibVLC/3.0.9';
+const USER_AGENT = `VLC/3.0.9 LibVLC/3.0.9`;
 
 /*
 -threads 1 -nostdin -hide_banner -nostats -loglevel error -fflags +genpts+discardcorrupt+igndts
