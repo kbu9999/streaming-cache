@@ -89,7 +89,7 @@ function createStream(link, channel, src, file) {
         '-reconnect_at_eof 1',
         '-reconnect_streamed 1',
         '-reconnect_delay_max 2',
-        `-user-agent "${ USER_AGENT.replace(/[\\$'"]/g, "\\$&") }"`
+        `-user_agent`, `"${ USER_AGENT }"`
       ])
       .audioCodec('copy')
       .videoCodec('copy')
@@ -111,8 +111,8 @@ function createStream(link, channel, src, file) {
         '-mpegts_flags +initial_discontinuity',
         '-force_key_frames expr:gte(t,n_forced*2)',
         '-f hls'
-      ]).output(file).on('start', () => {
-        strapi.log.info(`start conv ${file}`)
+      ]).output(file).on('start', (cmdline) => {
+        strapi.log.info(`start conv ${file} - "${cmdline}"`)
 
       }).on('progress', function (progress) {
         //console.log('Processing: ', progress);
