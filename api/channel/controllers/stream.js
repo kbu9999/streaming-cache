@@ -12,6 +12,8 @@ const ffmpeg = require('fluent-ffmpeg');
 const channels = {};
 const sources = {};
 
+const USER_AGENT = 'VLC/3.0.9 LibVLC/3.0.9';
+
 /*
 -threads 1 -nostdin -hide_banner -nostats -loglevel error -fflags +genpts+discardcorrupt+igndts
 -hwaccel vaapi -vaapi_device /dev/dri/renderD128 -hwaccel_output_format vaapi
@@ -86,7 +88,8 @@ function createStream(link, channel, src, file) {
         '-fflags +igndts+genpts',
         '-reconnect_at_eof 1',
         '-reconnect_streamed 1',
-        '-reconnect_delay_max 2'
+        '-reconnect_delay_max 2',
+        `-user_agent`, `${ USER_AGENT }`
       ])
       .audioCodec('copy')
       .videoCodec('copy')
