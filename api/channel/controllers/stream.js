@@ -11,6 +11,7 @@ const ffmpeg = require('fluent-ffmpeg');
 
 const channels = {};
 const sources = {};
+var last_source = null;
 
 const USER_AGENT = `VLC/3.0.9 LibVLC/3.0.9`;
 
@@ -43,7 +44,7 @@ setInterval(() => {
     //console.log(time)
     if (time > 25000) {
       ch.command.kill();
-      strapi.log.info('closing channel');
+      strapi.log.info(`closing channel ${ch.id}`);
     }
   })
 
@@ -79,8 +80,10 @@ function createStream(link, channel, src, file) {
       }
     }, 500)
 
-    if (src)
+    if (src) {
+      last_source = src;
       sources[src.id] = sources[src.id] ? sources[src.id] + 1 : 1;
+    }
 
     var cmd = ffmpeg(link.url, { timeout: 432000 })
       //.native()
@@ -138,20 +141,11 @@ function createStream(link, channel, src, file) {
   })
 }
 
-/*async function getSourceAviable() {
-  var s = await strapi.services.fuente.find();
-  return s.find(f => {
-    console.log(sources[f.id], f.limit);
-    return sources[f.id] ? sources[f.id] < f.limit : true
-  })
-}//*/
-
-async function getSourceAviable(links) {
+/*async function getSourceAviable(id) {
+  const links = await strapi.services.links.find({ channel: id, active: true });
   var lnk1 = links.find(l => l.source === null);
   if (lnk1) return lnk1;
 
-  //const s_sources = await strapi.services.fuente.find();
-  //console.log(links);
   var avs = links.map(lnk => lnk.source)
 
   const max = avs.reduce((mx, s) => s.limit > mx ? s.limit : mx, 0);
@@ -163,6 +157,20 @@ async function getSourceAviable(links) {
       return links[j];
     }
   }
+}//*/
+
+async function getSourceAviable(id) {
+  const links = await strapi.services.links.find({ channel: id, active: true });
+  var lnk1 = links.find(l => l.source === null);
+  if (lnk1) return lnk1;
+
+  var avs = links.map(lnk => lnk.source);
+  var avs = links.filter(src => last_source? src.id != last_source : true);
+
+  if(avs.length > 0)
+      resolve(avs[0]);
+      
+  return null;
 }
 
 module.exports = {
@@ -191,14 +199,15 @@ module.exports = {
 
     if (!(id in channels)) {
       channels[id] = {
+        id: id,
         command: null,
         //src: src.id,
         last: new Date()
       };
       const data = await strapi.services.channel.findOne({ id });
 
-      const links = await strapi.services.links.find({ channel: id, active: true });
-      const lnk = await getSourceAviable(links)
+      
+      const lnk = await getSourceAviable(id)
       if (!lnk) {
         strapi.log.warn('limit exceded');
         return;
