@@ -42,10 +42,9 @@ setInterval(() => {
   Object.values(channels).forEach(ch => {
     let time = curr - ch.last;
     //console.log(time)
-    if (time > 25000) {
+    if (time > 20000) {
       strapi.log.info(`closing channel ${ch.id}`);
       if (ch.command) ch.command.kill();
-      else clearStream(ch.id, null, "", ch.timerId);
     }
   })
 
@@ -159,7 +158,9 @@ async function getSourceAviable(id) {
     return null;
 
   var i = 0;
+  
   while (i < avs.length) {
+    console.log(avs[i], last_source);
     if(avs[i] != last_source)
       return avs[i];
 
