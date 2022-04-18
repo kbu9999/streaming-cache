@@ -80,7 +80,7 @@ function createStream(link, file) {
       '-reconnect_at_eof 1',
       '-reconnect_streamed 1',
       '-reconnect_delay_max 2',
-      '-max_reload 10',
+      //'-max_reload 10',
       //`-user_agent`, `"${ USER_AGENT }"`
     ])
     .audioCodec('copy')
@@ -176,7 +176,7 @@ function waitAndGetFile(channel_id, next) {
     let intervalTimerId;
     var timeoutTimerId = setTimeout(() => {
       clearInterval(intervalTimerId)
-      resolve(next)
+      resolve('')
     }, 5000)
 
     intervalTimerId = setInterval(() => {
