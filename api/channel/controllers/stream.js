@@ -169,14 +169,14 @@ async function getSourceAviable(id) {
   return avs[0];
 }
 
-function waitAndGetFile(channel_id) {
+function waitAndGetFile(channel_id, next) {
   var file = `/tmp/channel${channel_id}.m3u8`;
 
   return new Promise((resolve, reject) => {
     let intervalTimerId;
     var timeoutTimerId = setTimeout(() => {
       clearInterval(intervalTimerId)
-      reject()
+      reject(next)
     }, 5000)
 
     intervalTimerId = setInterval(() => {
@@ -241,7 +241,7 @@ module.exports = {
 
     var ch = channels[id];
     ch.last = new Date();
-    return await waitAndGetFile(id);
+    return await waitAndGetFile(id, next);
   },
   getSegmentStream: async (ctx, next) => {
     //strapi.log.info('get segment');
