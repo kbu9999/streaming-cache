@@ -160,8 +160,8 @@ async function getSourceAviable(id) {
   var i = 0;
   
   while (i < avs.length) {
-    //console.log(avs[i].source, last_source);
-    if(avs[i].source != last_source)
+    //console.log(avs[i].source != last_source, avs[i].source, last_source);
+    if(last_source && avs[i].source.id != last_source.id)
       return avs[i];
 
     i++;
