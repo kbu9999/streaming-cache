@@ -164,12 +164,12 @@ async function getSourceAviable(id) {
   var lnk1 = links.find(l => l.source === null);
   if (lnk1) return lnk1;
 
-  var avs = links.map(lnk => lnk.source);
-  var avs = links.filter(src => last_source? src.id != last_source : true);
+  //var avs = links.map(lnk => lnk.source);
+  var avs = links.filter(lnk => last_source? lnk.source.id != last_source.id : true);
 
   if(avs.length > 0)
-      resolve(avs[0]);
-      
+      return avs[0];
+
   return null;
 }
 
@@ -206,7 +206,6 @@ module.exports = {
       };
       const data = await strapi.services.channel.findOne({ id });
 
-      
       const lnk = await getSourceAviable(id)
       if (!lnk) {
         strapi.log.warn('limit exceded');
