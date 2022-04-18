@@ -43,102 +43,91 @@ setInterval(() => {
     let time = curr - ch.last;
     //console.log(time)
     if (time > 25000) {
-      ch.command.kill();
       strapi.log.info(`closing channel ${ch.id}`);
+      if (ch.command) ch.command.kill();
+      else clearStream(ch.id, null, "", ch.timerId);
     }
   })
 
   strapi.services.fuente.find().then(s_sources => {
     s_sources.forEach(src => {
-      strapi.services.channel.sourcesStats(src, sources[src.id]? sources[src.id] : 0)
+      strapi.services.channel.sourcesStats(src, sources[src.id] ? sources[src.id] : 0)
     })
   })
 }, 2500)
 
-function clearStream(channel, src, file, timerId) {
+function clearStream(link, file) {
+  var src = link.source;
   if (src && sources[src.id]) sources[src.id]--;
-  delete channels[channel];
-  clearInterval(timerId)
+  delete channels[link.channel.id];
+
   if (fs.existsSync(file))
     fs.unlinkSync(file);
 }
 
-function createStream(link, channel, src, file) {
-  return new Promise((resolve, reject) => {
-    strapi.log.info(`creando stream ${file}`)
+function createStream(link, file) {
+  strapi.log.info(`creando stream ${file}`)
 
-    var timerId = setInterval(() => {
-      const isExists = fs.existsSync(file)
+  if (link.source) {
+    last_source = link.source;
+    sources[link.source.id] = sources[link.source.id] ? sources[link.source.id] + 1 : 1;
+  }
 
-      if (isExists) {
-        clearInterval(timerId)
+  var cmd = ffmpeg(link.url, { timeout: 432000 })
+    //.native()
+    .inputOptions([
+      '-fflags +igndts+genpts',
+      '-reconnect_at_eof 1',
+      '-reconnect_streamed 1',
+      '-reconnect_delay_max 2',
+      '-max_reload 10',
+      //`-user_agent`, `"${ USER_AGENT }"`
+    ])
+    .audioCodec('copy')
+    .videoCodec('copy')
+    .addOptions([
+      '-fflags +genpts',
+      '-vsync -1',
+      '-threads 0',
+      //'-hls_flags delete_segments+independent_segments',
+      //'-hls_playlist_type vod',
+      //'-hls_start_number_source 0',
+      //'-hls_init_time 1',
+      '-hls_time 2',
+      '-hls_list_size 20',
+      '-avioflags +direct',
+      '-hls_ts_options fflags=+flush_packets',
+      '-segment_list_flags +live',
+      `-hls_segment_filename /tmp/live${link.channel.id}-%06d.ts`,
+      '-hls_flags delete_segments+program_date_time+append_list+discont_start+omit_endlist+independent_segments',
+      '-mpegts_flags +initial_discontinuity',
+      '-force_key_frames expr:gte(t,n_forced*2)',
+      '-f hls'
+    ]).output(file).on('start', (cmdline) => {
+      strapi.log.info(`start conv ${file} - "${cmdline}"`)
 
-        strapi.log.info(`${file} ready`)
-        const stream = fs.createReadStream(file)
-          .on('error', reject);;
-        resolve(stream);
-      }
-    }, 500)
+      //strapi.log.info(`${file} ready`)
+    }).on('progress', function (progress) {
+      //console.log('Processing: ', progress);
+      strapi.services.channel.writeStats(link.channel.id, progress)
+    }).on('error', (err) => {
+      if (!err.message.includes("SIGKILL"))
+        strapi.log.warn(err.message)
 
-    if (src) {
-      last_source = src;
-      sources[src.id] = sources[src.id] ? sources[src.id] + 1 : 1;
-    }
+      clearStream(link, file)
+    }).on('end', () => {
+      strapi.log.info(`end ${file}`);
 
-    var cmd = ffmpeg(link.url, { timeout: 432000 })
-      //.native()
-      .inputOptions([
-        '-fflags +igndts+genpts',
-        '-reconnect_at_eof 1',
-        '-reconnect_streamed 1',
-        '-reconnect_delay_max 2',
-        //`-user_agent`, `"${ USER_AGENT }"`
-      ])
-      .audioCodec('copy')
-      .videoCodec('copy')
-      .addOptions([
-        '-fflags +genpts',
-        '-vsync -1',
-        '-threads 0',
-        //'-hls_flags delete_segments+independent_segments',
-        //'-hls_playlist_type vod',
-        //'-hls_start_number_source 0',
-        //'-hls_init_time 1',
-        '-hls_time 2',
-        '-hls_list_size 20',
-        '-avioflags +direct',
-        '-hls_ts_options fflags=+flush_packets',
-        '-segment_list_flags +live',
-        `-hls_segment_filename /tmp/live${channel}-%06d.ts`,
-        '-hls_flags delete_segments+program_date_time+append_list+discont_start+omit_endlist+independent_segments',
-        '-mpegts_flags +initial_discontinuity',
-        '-force_key_frames expr:gte(t,n_forced*2)',
-        '-f hls'
-      ]).output(file).on('start', (cmdline) => {
-        strapi.log.info(`start conv ${file} - "${cmdline}"`)
+      clearStream(link, file)
+    });
 
-      }).on('progress', function (progress) {
-        //console.log('Processing: ', progress);
-        strapi.services.channel.writeStats(channel, progress)
-      }).on('error', (err) => {
-        if (!err.message.includes("SIGKILL"))
-          strapi.log.warn(err.message)
-
-        clearStream(channel, src, file, timerId)
-      }).on('end', () => {
-        strapi.log.info(`end ${file}`);
-
-        clearStream(channel, src, file, timerId)
-      });
-
-    channels[channel].command = cmd
-    /*channels[channel] = {
-      command: cmd,
-      //src: src.id,
-      last: new Date()
-    };//*/
-    cmd.run();//*/
-  })
+  channels[link.channel.id].command = cmd
+  /*channels[channel] = {
+    command: cmd,
+    //src: src.id,
+    last: new Date()
+  };//*/
+  cmd.run();//*/
 }
 
 /*async function getSourceAviable(id) {
@@ -163,14 +152,44 @@ async function getSourceAviable(id) {
   const links = await strapi.services.links.find({ channel: id, active: true });
   var lnk1 = links.find(l => l.source === null);
   if (lnk1) return lnk1;
+  
+  var avs = links.filter(lnk => sources[lnk.source.id]? sources[lnk.source.id] < lnk.source.limit : true);
 
-  //var avs = links.map(lnk => lnk.source);
-  var avs = links.filter(lnk => last_source? lnk.source.id != last_source.id : true);
+  if (avs.length == 0)
+    return null;
 
-  if(avs.length > 0)
-      return avs[0];
+  var i = 0;
+  while (i < avs.length) {
+    if(avs[i] != last_source)
+      return avs[i];
 
-  return null;
+    i++;
+  }
+
+  return avs[0];
+}
+
+function waitAndGetFile(channel_id) {
+  var file = `/tmp/channel${channel_id}.m3u8`;
+
+  return new Promise((resolve, reject) => {
+    let intervalTimerId;
+    var timeoutTimerId = setTimeout(() => {
+      clearInterval(intervalTimerId)
+      reject()
+    }, 5000)
+
+    intervalTimerId = setInterval(() => {
+      const isExists = fs.existsSync(file)
+
+      if (isExists) {
+        clearInterval(intervalTimerId);
+        clearTimeout(timeoutTimerId);
+
+        resolve(fs.createReadStream(file));
+      }
+    }, 500)
+  });
 }
 
 module.exports = {
@@ -204,8 +223,7 @@ module.exports = {
         //src: src.id,
         last: new Date()
       };
-      const data = await strapi.services.channel.findOne({ id });
-
+      
       const lnk = await getSourceAviable(id)
       if (!lnk) {
         strapi.log.warn('limit exceded');
@@ -218,13 +236,12 @@ module.exports = {
         lnk.url = yt.toString().trim();
       }
 
-      return await createStream(lnk, data.id, lnk.source, file);
+      createStream(lnk, file);
     }
-    else {
-      var ch = channels[id];
-      ch.last = new Date();
-      return fs.createReadStream(file);
-    }
+
+    var ch = channels[id];
+    ch.last = new Date();
+    return await waitAndGetFile(id);
   },
   getSegmentStream: async (ctx, next) => {
     //strapi.log.info('get segment');
