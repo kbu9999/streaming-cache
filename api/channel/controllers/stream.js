@@ -176,7 +176,7 @@ function waitAndGetFile(channel_id, next) {
     let intervalTimerId;
     var timeoutTimerId = setTimeout(() => {
       clearInterval(intervalTimerId)
-      reject(next)
+      resolve(next)
     }, 5000)
 
     intervalTimerId = setInterval(() => {
