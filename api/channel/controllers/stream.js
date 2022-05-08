@@ -81,6 +81,7 @@ function createStream(link, file) {
       '-reconnect_delay_max 2',
       //'-max_reload 10',
       //`-user_agent`, `"${ USER_AGENT }"`
+      '-analyzeduration 10'
     ])
     .audioCodec('copy')
     .videoCodec('copy')
