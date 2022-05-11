@@ -89,6 +89,7 @@ function createStream(link, file) {
       '-fflags +genpts',
       '-vsync -1',
       '-threads 0',
+      '-metadata:s:a:0 language=spa',
       //'-hls_flags delete_segments+independent_segments',
       //'-hls_playlist_type live',
       //'-hls_start_number_source 0',
@@ -101,6 +102,9 @@ function createStream(link, file) {
       `-hls_segment_filename /tmp/live${link.channel.id}-%06d.ts`,
       '-hls_flags delete_segments+program_date_time+append_list+discont_start+omit_endlist+independent_segments',
       '-mpegts_flags +initial_discontinuity',
+      '-map_metadata -1',
+      `-metadata`, `service_provider="${link.channel.name.trim()}"`,
+      `-metadata`, `service_name="${link.channel.name.trim()}"`,
       '-force_key_frames expr:gte(t,n_forced*2)',
       '-f hls'
     ]).output(file).on('start', (cmdline) => {
@@ -160,7 +164,15 @@ function waitAndGetFile(channel_id, next) {
     let intervalTimerId;
     var timeoutTimerId = setTimeout(() => {
       clearInterval(intervalTimerId)
-      resolve('')
+      resolve(`#EXTM3U
+#EXT-X-VERSION:6
+#EXT-X-TARGETDURATION:4
+#EXT-X-MEDIA-SEQUENCE:0
+#EXT-X-DISCONTINUITY
+#EXT-X-INDEPENDENT-SEGMENTS
+#EXT-X-DISCONTINUITY
+#EXTINF:4.000000
+live${channel_id}-000000.ts`)
     }, 5000)
 
     intervalTimerId = setInterval(() => {
