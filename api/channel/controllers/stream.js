@@ -13,8 +13,8 @@ const channels = {};
 const sources = {};
 var last_source = null;
 
-const USER_AGENT = `VLC/3.0.9 LibVLC/3.0.9`;
-
+//const USER_AGENT = `VLC/3.0.9 LibVLC/3.0.9`;
+const USER_AGENT = "Mozilla/5.0 (Linux; Android 4.4.3; en-US; Nexus 6 Build/LMY47Z) MXPlayer/1.7.40";
 /*
 -threads 1 -nostdin -hide_banner -nostats -loglevel error -fflags +genpts+discardcorrupt+igndts
 -hwaccel vaapi -vaapi_device /dev/dri/renderD128 -hwaccel_output_format vaapi
@@ -80,7 +80,7 @@ function createStream(link, file) {
       '-reconnect_streamed 1',
       '-reconnect_delay_max 2',
       //'-max_reload 10',
-      //`-user_agent`, `"${ USER_AGENT }"`
+      `-user_agent`, `'${USER_AGENT}'`,
       '-analyzeduration 10'
     ])
     .audioCodec('copy')
