@@ -89,13 +89,13 @@ function createStream(link, file) {
       '-vsync -1',
       '-threads 0',
       //'-hls_flags delete_segments+independent_segments',
-      //'-hls_playlist_type vod',
+      //'-hls_playlist_type live',
       //'-hls_start_number_source 0',
       //'-hls_init_time 1',
       '-hls_time 2',
       '-hls_list_size 20',
-      '-avioflags +direct',
-      '-hls_ts_options fflags=+flush_packets',
+      //'-avioflags +direct',
+      //'-hls_ts_options fflags=+flush_packets',
       '-segment_list_flags +live',
       `-hls_segment_filename /tmp/live${link.channel.id}-%06d.ts`,
       '-hls_flags delete_segments+program_date_time+append_list+discont_start+omit_endlist+independent_segments',
@@ -128,24 +128,6 @@ function createStream(link, file) {
   };//*/
   cmd.run();//*/
 }
-
-/*async function getSourceAviable(id) {
-  const links = await strapi.services.links.find({ channel: id, active: true });
-  var lnk1 = links.find(l => l.source === null);
-  if (lnk1) return lnk1;
-
-  var avs = links.map(lnk => lnk.source)
-
-  const max = avs.reduce((mx, s) => s.limit > mx ? s.limit : mx, 0);
-  for (var i = 0; i < max; i++) {
-    for (var j = 0; j < avs.length; j++) {
-      if (i >= avs[j].limit) continue
-      if (i < sources[j]) continue
-      //vs.push(avs[j].name);
-      return links[j];
-    }
-  }
-}//*/
 
 async function getSourceAviable(id) {
   const links = await strapi.services.links.find({ channel: id, active: true });
