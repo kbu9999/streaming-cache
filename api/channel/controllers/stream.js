@@ -80,7 +80,7 @@ function createStream(link, file) {
       '-reconnect_streamed 1',
       '-reconnect_delay_max 2',
       //'-max_reload 10',
-      `-user_agent`, `'${USER_AGENT}'`,
+      //`-user_agent`, `'${USER_AGENT}'`,
       '-analyzeduration 10'
     ])
     .audioCodec('copy')
